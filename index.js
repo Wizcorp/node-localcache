@@ -13,7 +13,7 @@ function LocalCache(resolution, options) {
 	//   maxKeys: int (null)                 (if there are more keys stored than allowed, GC cycles will be triggered early).
 	//   aggressiveExpiration: bool (false)  (when true, a get() will not return an expired value, even if it still hasn't been garbage collected).
 
-	this.resolution = resolution || 60; 	// in seconds, eg: 60
+	this.resolution = resolution || 60;		// in seconds, eg: 60
 	this.options = options || {};
 
 	this.store = {};	// key: value
@@ -94,7 +94,7 @@ LocalCache.prototype.gcScheduled = function () {
 
 
 LocalCache.prototype.calcBlockIndex = function (expirationTime) {
-	return Math.floor((expirationTime - this.lastGcCycleTime) / this.resolution);
+	return ((expirationTime - this.lastGcCycleTime) / this.resolution) >>> 0;
 };
 
 
@@ -151,10 +151,8 @@ LocalCache.prototype.touch = function (key, ttl) {
 			value[1] = expirationTime;
 		}
 
-		return true;
+		return value[0];
 	}
-
-	return false;
 };
 
 
@@ -172,10 +170,8 @@ LocalCache.prototype.del = function (key) {
 		delete this.store[key];
 		this.keyCount--;
 
-		return true;
+		return value[0];
 	}
-
-	return false;
 };
 
 
@@ -183,7 +179,7 @@ LocalCache.prototype.get = function (key) {
 	var value = this.store[key];
 	if (value) {
 		if (this.options.aggressiveExpiration && value[1] && value[1] < now()) {
-			this.del(key);
+			return this.del(key);
 		} else {
 			return value[0];
 		}
@@ -201,9 +197,15 @@ LocalCache.prototype.getExpirationTime = function (key) {
 };
 
 
-LocalCache.prototype.add = function (key, value, ttl) {
-	if (this.store.hasOwnProperty(key)) {
-		return false;
+LocalCache.prototype.add = function (key, value, ttl, touchIfExists) {
+	var current = this.store[key];
+
+	if (current) {
+		if (touchIfExists) {
+			return this.touch(key, ttl);
+		}
+
+		return current[0];
 	}
 
 	if (this.options.maxKeys) {
@@ -232,12 +234,12 @@ LocalCache.prototype.add = function (key, value, ttl) {
 	this.store[key] = value;
 	this.keyCount++;
 
-	return true;
+	return value[0];
 };
 
 
 LocalCache.prototype.set = function (key, value, ttl) {
 	this.del(key);
-	this.add(key, value, ttl);
+	return this.add(key, value, ttl);
 };
 

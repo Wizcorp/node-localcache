@@ -40,20 +40,26 @@ Resets the entire cache to zero.
 
 Returns an object containing information about the state of the cache.
 
-### cache.add(key, value, [ttl])
+### cache.add(key, value, [ttl], [touchIfExists])
 
-Adds a value to the cache, optionally expiring after `ttl` seconds. If a value with that key already
-exists, it will not be overwritten and false will be returned. True will be returned otherwise.
+Adds a value to the cache, optionally expiring after `ttl` seconds. If a value with that key did not yet
+exist, it will be created and the new value will be returned. If a value did exist, it will not be
+overwritten, and instead that existing value will be returned. Also, if `touchIfExists` is true, the
+existing value will get `ttl` as a new time-to-live.
 
 ### cache.set(key, value, [ttl])
 
 Adds a value to the cache, optionally expiring after `ttl` seconds. If a value with that key already
-exists, it will be overwritten.
+exists, it will be overwritten. For chainability, set() will return the value.
+
+### cache.touch(key, ttl)
+
+Resets the value's expiration time to now + `ttl` seconds. The value that `key` holds will be returned.
 
 ### cache.del(key)
 
-Deletes the value with key `key` from the cache. If the value existed, true will be returned.
-False otherwise.
+Deletes the value with key `key` from the cache. If the value existed, this deleted value will be returned.
+If it did not exist, undefined will be returned.
 
 ### cache.get(key)
 
@@ -63,10 +69,6 @@ Returns the value stored by key `key`. If it does not exist, undefined will be r
 
 Yields the time (unix timestamp in seconds) at which the value for key `key` will expire. if the value
 will never expire, null is returned. If the value does not exist, undefined is returned.
-
-### cache.touch(key, ttl)
-
-Resets the value's expiration time to now + ttl seconds.
 
 
 ## Example
