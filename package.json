@@ -1,5 +1,5 @@
 {
-	"name": "LocalCache",
+	"name": "localcache",
 	"description": "A fast, minimalistic in-memory key/value cache",
 	"version": "0.1.0",
 	"author": "Ron Korving <rkorving@wizcorp.jp>",
