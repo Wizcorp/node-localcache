@@ -1,0 +1,14 @@
+{
+	"name": "LocalCache",
+	"description": "A fast, minimalistic in-memory key/value cache",
+	"version": "0.1.0",
+	"author": "Ron Korving <rkorving@wizcorp.jp>",
+	"engines": {
+		"node": ">=0.4.9"
+	},
+	"main": "index",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Wizcorp/LocalCache.git"
+	}
+}
