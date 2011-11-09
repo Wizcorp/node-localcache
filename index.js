@@ -175,13 +175,17 @@ LocalCache.prototype.del = function (key) {
 };
 
 
-LocalCache.prototype.get = function (key) {
+LocalCache.prototype.get = function (key, newTTL) {
 	var value = this.store[key];
 	if (value) {
 		if (this.options.aggressiveExpiration && value[1] && value[1] < now()) {
 			return this.del(key);
 		} else {
-			return value[0];
+			if (newTTL === undefined) {
+				return value[0];
+			}
+
+			return this.touch(key, newTTL);
 		}
 	}
 };

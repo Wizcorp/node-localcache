@@ -61,9 +61,10 @@ Resets the value's expiration time to now + `ttl` seconds. The value that `key` 
 Deletes the value with key `key` from the cache. If the value existed, this deleted value will be returned.
 If it did not exist, undefined will be returned.
 
-### cache.get(key)
+### cache.get(key, newTTL)
 
-Returns the value stored by key `key`. If it does not exist, undefined will be returned.
+Returns the value stored by key `key`. If it does not exist, undefined will be returned. If `newTTL` is
+defined, the value will be "touched" with the new TTL.
 
 ### cache.getExpirationTime(key)
 
