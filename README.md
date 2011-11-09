@@ -3,6 +3,7 @@
 LocalCache is a fast, minimalistic in-memory key/value cache, with support for expiration.
 In essence, it's quite similar to other key/value stores like memcached, except that LocalCache
 only keeps things in the current process's memory, and not in some external service.
+LocalCache has no external dependencies.
 
 ## Why would I use this?
 
@@ -16,7 +17,7 @@ performance overhead, and a fast garbage collection mechanism.
 
 LocalCache exposes the following APIs:
 
-### new LocalCache([cycleInterval], [options]) (constructor)
+### new LocalCache([cycleInterval], [options])
 
 `cycleInterval` is the garbage collection cycle interval, in seconds. If you tend to store a lot
 of data, with short TTL values, it is recommended to use a relatively low interval. If data
@@ -102,4 +103,4 @@ cache.del('hello');
 
 ## License
 
-
+LocalCache uses the MIT License.
