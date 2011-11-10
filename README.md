@@ -87,7 +87,7 @@ var cache = new LocalCache(60, options);
 
 cache.set('hello', 'world', 30);
 
-// adding a key called "hello" will now fail (return false).
+// adding a key called "hello" will now fail and return the previous value "world".
 
 cache.add('hello', 'foo');
 
