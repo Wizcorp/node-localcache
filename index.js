@@ -19,6 +19,7 @@ function LocalCache(resolution, options) {
 	this.store = {};	// key: value
 	this.expiry = [];
 	this.keyCount = 0;
+	this.timer = null;
 
 	this.lastGcCycleTime = now();
 
@@ -71,9 +72,15 @@ LocalCache.prototype.gcCycle = function () {
 LocalCache.prototype.scheduleGcCycle = function (interval) {
 	var that = this;
 
-	setTimeout(function () {
+	this.timer = setTimeout(function () {
 		that.gcScheduled();
 	}, interval * 1000);
+};
+
+
+LocalCache.prototype.shutdown = function () {
+	clearTimeout(this.timer);
+	this.timer = null;
 };
 
 
