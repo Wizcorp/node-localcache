@@ -1,23 +1,23 @@
-# LocalCache
+# LocalStash
 
-LocalCache is a fast, minimalistic in-memory key/value cache, with support for expiration.
-In essence, it's quite similar to other key/value stores like memcached, except that LocalCache
+LocalStash is a fast, minimalistic in-memory key/value cache, with support for expiration.
+In essence, it's quite similar to other key/value stores like memcached, except that LocalStash
 only keeps things in the current process's memory, and not in some external service.
-LocalCache has no external dependencies.
+LocalStash has no external dependencies.
 
 ## Why would I use this?
 
 Sometimes you want to store some calculated, or externally retrieved values, because you know
 you may need them again very soon. Nonetheless, you don't want to keep them around for too long.
-That's where the ability to expire information comes in handy. LocalCache has its own garbage
+That's where the ability to expire information comes in handy. LocalStash has its own garbage
 collection mechanism for expiring old data. The main design considerations are a small
 performance overhead, and a fast garbage collection mechanism.
 
 ## API
 
-LocalCache exposes the following APIs:
+LocalStash exposes the following APIs:
 
-### new LocalCache([cycleInterval], [options])
+### new LocalStash([cycleInterval], [options])
 
 `cycleInterval` is the garbage collection cycle interval, in seconds. If you tend to store a lot
 of data, with short TTL values, it is recommended to use a relatively low interval. If data
@@ -75,13 +75,13 @@ will never expire, null is returned. If the value does not exist, undefined is r
 ## Example
 
 ``` javascript
-var LocalCache = require('localcache').LocalCache;
+var LocalStash = require('localstash').LocalStash;
 
 // instantiate
 
 var options = {};
 
-var cache = new LocalCache(60, options);
+var cache = new LocalStash(60, options);
 
 // set key "hello" to value "world" and expire after 30 seconds.
 
@@ -106,4 +106,4 @@ cache.del('hello');
 
 ## License
 
-LocalCache uses the MIT License.
+LocalStash uses the MIT License.
