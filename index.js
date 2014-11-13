@@ -8,7 +8,7 @@ exports.setTimestampProvider = function (fn) {
 };
 
 
-function LocalCache(resolution, options) {
+function LocalStash(resolution, options) {
 	// options:
 	//   maxKeys: int (null)                 (if there are more keys stored than allowed, GC cycles will be triggered early).
 	//   aggressiveExpiration: bool (false)  (when true, a get() will not return an expired value, even if it still hasn't been garbage collected).
@@ -27,17 +27,17 @@ function LocalCache(resolution, options) {
 }
 
 
-exports.LocalCache = LocalCache;
+exports.LocalStash = LocalStash;
 
 
-LocalCache.prototype.flush = function () {
+LocalStash.prototype.flush = function () {
 	this.store = {};
 	this.expiry = [];
 	this.keyCount = 0;
 };
 
 
-LocalCache.prototype.diagnostics = function () {
+LocalStash.prototype.diagnostics = function () {
 	var nextExpirationKeys = this.expiry[0] ? this.expiry[0].length : 0;
 
 	return {
@@ -49,7 +49,7 @@ LocalCache.prototype.diagnostics = function () {
 };
 
 
-LocalCache.prototype.gcCycle = function () {
+LocalStash.prototype.gcCycle = function () {
 	var keys = this.expiry.shift();
 
 	if (keys) {
@@ -69,7 +69,7 @@ LocalCache.prototype.gcCycle = function () {
 };
 
 
-LocalCache.prototype.scheduleGcCycle = function (interval) {
+LocalStash.prototype.scheduleGcCycle = function (interval) {
 	var that = this;
 
 	this.timer = setTimeout(function () {
@@ -78,13 +78,13 @@ LocalCache.prototype.scheduleGcCycle = function (interval) {
 };
 
 
-LocalCache.prototype.shutdown = function () {
+LocalStash.prototype.shutdown = function () {
 	clearTimeout(this.timer);
 	this.timer = null;
 };
 
 
-LocalCache.prototype.gcScheduled = function () {
+LocalStash.prototype.gcScheduled = function () {
 	var currentTime = this.lastGcCycleTime + this.resolution;
 
 	this.gcCycle();
@@ -100,12 +100,12 @@ LocalCache.prototype.gcScheduled = function () {
 };
 
 
-LocalCache.prototype.calcBlockIndex = function (expirationTime) {
+LocalStash.prototype.calcBlockIndex = function (expirationTime) {
 	return ((expirationTime - this.lastGcCycleTime) / this.resolution) >>> 0;
 };
 
 
-LocalCache.prototype.removeFromExpiryBlock = function (key, blockIndex) {
+LocalStash.prototype.removeFromExpiryBlock = function (key, blockIndex) {
 	var block = this.expiry[blockIndex];
 	if (block) {
 		var index = block.indexOf(key);
@@ -116,7 +116,7 @@ LocalCache.prototype.removeFromExpiryBlock = function (key, blockIndex) {
 };
 
 
-LocalCache.prototype.addToExpiryBlock = function (key, blockIndex) {
+LocalStash.prototype.addToExpiryBlock = function (key, blockIndex) {
 	var block = this.expiry[blockIndex];
 	if (block) {
 		block.push(key);
@@ -126,7 +126,7 @@ LocalCache.prototype.addToExpiryBlock = function (key, blockIndex) {
 };
 
 
-LocalCache.prototype.touch = function (key, ttl) {
+LocalStash.prototype.touch = function (key, ttl) {
 	var value = this.store[key];
 	if (value) {
 		var oldBlock = null, newBlock = null, expirationTime = null;
@@ -163,7 +163,7 @@ LocalCache.prototype.touch = function (key, ttl) {
 };
 
 
-LocalCache.prototype.del = function (key) {
+LocalStash.prototype.del = function (key) {
 	var value = this.store[key];
 	if (value) {
 		if (value[1]) {
@@ -182,23 +182,24 @@ LocalCache.prototype.del = function (key) {
 };
 
 
-LocalCache.prototype.get = function (key, newTTL) {
+LocalStash.prototype.get = function (key, newTTL) {
 	var value = this.store[key];
 	if (value) {
 		if (this.options.aggressiveExpiration && value[1] && value[1] < now()) {
-			return this.del(key);
-		} else {
-			if (newTTL === undefined) {
-				return value[0];
-			}
-
-			return this.touch(key, newTTL);
+			this.del(key);
+			return; // undefined
 		}
+
+		if (newTTL === undefined) {
+			return value[0];
+		}
+
+		return this.touch(key, newTTL);
 	}
 };
 
 
-LocalCache.prototype.getExpirationTime = function (key) {
+LocalStash.prototype.getExpirationTime = function (key) {
 	// returns null if it doesn't expire, false if key not found
 
 	var value = this.store[key];
@@ -208,7 +209,7 @@ LocalCache.prototype.getExpirationTime = function (key) {
 };
 
 
-LocalCache.prototype.add = function (key, value, ttl, touchIfExists) {
+LocalStash.prototype.add = function (key, value, ttl, touchIfExists) {
 	var current = this.store[key];
 
 	if (current) {
@@ -249,7 +250,7 @@ LocalCache.prototype.add = function (key, value, ttl, touchIfExists) {
 };
 
 
-LocalCache.prototype.set = function (key, value, ttl) {
+LocalStash.prototype.set = function (key, value, ttl) {
 	this.del(key);
 	return this.add(key, value, ttl);
 };
