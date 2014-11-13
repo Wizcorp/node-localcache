@@ -36,7 +36,8 @@ assert.strictEqual(got, 5);
 
 // test: touch
 
-cache.set('key1', 'hello', 1);
+cache.set('key1', 'hello');
+cache.touch('key1', 1);
 got = cache.get('key1');
 assert.strictEqual(got, 'hello');
 
